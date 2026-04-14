@@ -1,0 +1,135 @@
+<div ng-controller="AdminPhotoCtrl as ctrl" ng-cloak>
+    <md-content>
+        <md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
+            <div class="md-toolbar-tools">
+                <div style='padding: 0 4px 0 0;'><a href="#/voting/{{eventId}}"> <img src='img/logo-xs.png'></a></div>
+                <span class="title">{{eventTitle}}</span>
+                <span flex></span>
+                <img ng-src="https://graph.facebook.com/{{getFbId}}/picture" width="25px"> <div style='font-size:10px; padding:0 0 0 5px;'></div>
+                <md-menu>
+                    <md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="ctrl.openMenu($mdOpenMenu, $event)">
+                        <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+                    </md-button>
+                    <md-menu-content width="4">
+                        <md-menu-item>
+                            <md-button href = '#/admin'>Admin Home</md-button>
+                        </md-menu-item>
+                        <md-menu-item>
+                            <md-button href = "#/admin/{{eventId}}">Back to Event {{eventId}}</md-button>
+                        </md-menu-item>
+                        <md-menu-item>
+                            <md-button href = '#/admin/events'>All Events</md-button>
+                        </md-menu-item>
+                    </md-menu-content>
+                </md-menu>
+            </div>
+        </md-toolbar>
+    </md-content>
+<div layout="row" style='padding: 5px 0px;'>
+    <h1>Event Photo Admin</h1>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table border="1" class="table" ng-controller="AdminPhotosUploadedCtrl">
+            <tr>
+                <th class="votes">Approve</th>
+                <th class="votes">Deny</th>
+                <th>Collage Num</th>
+                <th>Photo</th>
+                <th>Uploaded By</th>
+            </tr>
+            <tr ng-repeat="photos in photos">
+                <td class="votes">
+                    <form >
+                        <button class="votes" ng-click=" photomark(photos, 1)">Approve</button>
+                    </form>
+                </td>
+                <td class="votes">
+                    <form>
+                        <button class="votes" ng-click=" photomark(photos, 2)">Deny</button>
+                    </form>
+                </td>
+                <td>
+                  {{photos.photonum}}
+                </td>
+                <td>
+                  <img ng-src="/photos/{{photos.eventId}}/{{photos.name}}.jpg" width="200px">
+                </td>
+                <td>
+                    <a href="https://www.facebook.com/{{photos.uploadedfbId}}"><img ng-src="https://graph.facebook.com/{{photos.uploadedfbId}}/picture" width="25px"> {{photos.uploadedBy}}</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="row" >
+    <div class="col-md-12">
+        Approved Photos:
+        <table border="1" class="table" ng-controller="AdminPhotosApprovedCtrl">
+           <tr>
+                <th class="votes">Requeue</th>
+                <th class="votes">Deny</th>
+                <th>Collage Num</th>
+                <th>Photo</th>
+                <th>Uploaded By</th>
+            </tr>
+            <tr ng-repeat="photos in photos">
+                <td class="votes">
+                    <form >
+                        <button class="votes" ng-click=" photomark(photos, 0)">Requeue</button>
+                    </form>
+                </td>
+                <td class="votes">
+                    <form>
+                        <button class="votes" ng-click=" photomark(photos, 2)">Deny</button>
+                    </form>
+                </td>
+                <td>
+                  {{photos.photonum}}
+                </td>
+                <td>
+                  <img ng-src="/photos/{{photos.eventId}}/{{photos.name}}.jpg" width="200px">
+                </td>
+                <td>
+                <a href="https://www.facebook.com/{{photos.uploadedfbId}}"><img ng-src="https://graph.facebook.com/{{photos.uploadedfbId}}/picture" width="25px"> {{photos.uploadedBy}}</a>
+	        </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        Denied Photos:
+        <table border="1" class="table" ng-controller="AdminPhotosDeniedCtrl">
+           <tr>
+                <th class="votes">Requeue</th>
+                <th class="votes">Approve</th>
+                <th>Collage Num</th>
+                <th>Photo</th>
+                <th>Uploaded By</th>
+            </tr>
+            <tr ng-repeat="photos in photos">
+                <td class="votes">
+                    <form >
+                        <button class="votes" ng-click=" photomark(photos, 0)">Requeue</button>
+                    </form>
+                </td>
+                <td class="votes">
+                    <form>
+                        <button class="votes" ng-click=" photomark(photos, 1)">Approve</button>
+                    </form>
+                </td>
+                <td>
+                  {{photos.photonum}}
+                </td>
+                <td>
+                  <img ng-src="/photos/{{photos.eventId}}/{{photos.name}}.jpg" width="200px">
+                </td>
+                <td>
+                <a href="https://www.facebook.com/{{photos.uploadedfbId}}"><img ng-src="https://graph.facebook.com/{{photos.uploadedfbId}}/picture" width="25px"> {{photos.uploadedBy}}</a>
+		</td>
+            </tr>
+        </table>
+    </div>
+</div>

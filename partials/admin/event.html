@@ -1,0 +1,123 @@
+<div ng-controller="AdminEventCtrl as ctrl" ng-cloak>
+    <md-content>
+        <md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
+            <div class="md-toolbar-tools">
+                <div style='padding: 0 4px 0 0;'><a href="#/voting/{{eventId}}"> <img src='img/logo-xs.png'></a></div>
+                <span class="title">{{eventDetails.title}}</span>
+                <span flex></span>
+                <img ng-src="https://graph.facebook.com/{{getFbId}}/picture" width="25px"> <div style='font-size:10px; padding:0 0 0 5px;'></div>
+                <md-menu>
+                    <md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="ctrl.openMenu($mdOpenMenu, $event)">
+                        <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+                    </md-button>
+                    <md-menu-content width="4">
+                        <md-menu-item>
+                            <md-button href = '#/admin'>Admin Home</md-button>
+                        </md-menu-item>
+                        <md-menu-item>
+                            <md-button ng-click='ctrl.editEvent(eventDetails)'>Edit Event Details</md-button>
+                        </md-menu-item>
+                       <md-menu-item>
+                            <md-button ng-click='ctrl.editEventPhotos(eventDetails)'>Edit Event Photos</md-button>
+                        </md-menu-item>
+                        <md-menu-item>
+                            <md-button href = '#/admin/events'>All Events</md-button>
+                        </md-menu-item>
+                    </md-menu-content>
+                </md-menu>
+            </div>
+        </md-toolbar>
+    </md-content>
+</div>
+<div layout="row" layout-align="center center" style='padding: 5px 0px;'>
+    <button type="button" ng-click='ctrl.editEventPhotos(eventDetails)' class="btn btn-primary" />Edit Event Photos</button>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table border="1" class="table" ng-controller="AdminSongsQueuedCtrl">
+            <tr>
+                <th class="votes">ReSend</th>
+                <th class="votes">Played</th>
+                <th class="votes">Remove</th>
+                <th>Title/Artist</th>
+                <th>Request By</th>
+            </tr>
+            <tr ng-repeat="votes in votes">
+                <td class="votes">
+                    <form>
+                        <button class="btn btn-primary" ng-init="votes.voted" ng-click=" resend(votes, getFbId, 1)">VDJ</button>
+                    </form>
+                </td>
+                <td class="votes">
+                    <form >
+                        <button class="votes" ng-init="votes.voted" ng-class="{true: 'btn-voted-false', false: 'btn-voted-true'}[!votes.voted]" ng-click=" played(votes, getFbId, 1)">{{votes.userVotes}}</button>
+                    </form>
+                </td>
+                <td class="votes">
+                    <form>
+                        <button class="votes" ng-init="votes.voted" ng-class="{true: 'btn-voted-false', false: 'btn-voted-true'}[!votes.voted]" ng-click=" played(votes, getFbId, 2)">{{votes.userVotes}}</button>
+                    </form>
+                </td>
+                <td>{{votes.songTitle}}
+                    <br>
+                    <i>{{votes.songArtist}}</i>
+                </td>
+                <td>
+                    <a href="https://www.facebook.com/{{votes.fbid}}"><img ng-src="https://graph.facebook.com/{{votes.fbid}}/picture" width="25px"> {{votes.requestedBy}}</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="row" >
+    <div class="col-md-12">
+        Played Songs:
+        <table border="1" class="table" ng-controller="AdminSongsPlayedCtrl">
+            <tr>
+                <th class="votes">Suggest</th>
+                <th>Title/Artist</th>
+                <th>Requested By</th>
+            </tr>
+            <tr ng-repeat="votes in votes">
+                <td class="votes">
+                    <form>
+                        <button class="votes" ng-init="votes.voted" ng-class="{true: 'btn-voted-false', false: 'btn-voted-true'}[!votes.voted]" ng-click=" played(votes, getFbId, 0)">{{votes.userVotes}}</button>
+                    </form>
+                </td>
+                <td>{{votes.songTitle}}
+                    <br>
+                    <i>{{votes.songArtist}}</i>
+                </td>
+                <td>
+                    <a href="https://www.facebook.com/{{votes.fbid}}"><img ng-src="https://graph.facebook.com/{{votes.fbid}}/picture" width="25px"> {{votes.requestedBy}}</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        Removed (Hidden) Songs:
+        <table border="1" class="table" ng-controller="AdminSongsRemovedCtrl">
+            <tr>
+                <th class="votes">Suggest</th>
+                <th>Title/Artist</th>
+                <th>Requested By</th>
+            </tr>
+            <tr ng-repeat="votes in votes">
+                <td class="votes">
+                    <form >
+                        <button class="votes" ng-init="votes.voted" ng-class="{true: 'btn-voted-false', false: 'btn-voted-true'}[!votes.voted]" ng-click=" played(votes, getFbId, 0)">{{votes.userVotes}}</button>
+                    </form>
+                </td>
+                <td>{{votes.songTitle}}
+                    <br>
+                    <i>{{votes.songArtist}}</i>
+                </td>
+                <td>
+                    <a href="https://www.facebook.com/{{votes.fbid}}"><img ng-src="https://graph.facebook.com/{{votes.fbid}}/picture" width="25px"> {{votes.requestedBy}}</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

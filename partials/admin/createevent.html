@@ -1,0 +1,64 @@
+<div ng-controller="CreateEventCtrl as ctrl" ng-cloak>
+    <md-content>
+        <md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
+            <div class="md-toolbar-tools">
+                <div style='padding: 0 4px 0 0;'><a href="#/voting/{{eventId}}"> <img src='img/logo-xs.png'></a></div>
+                <span class="title">{{eventTitle}}</span>
+                <span flex></span>
+                <img ng-src="https://graph.facebook.com/{{getFbId}}/picture" width="25px"> <div style='font-size:10px; padding:0 0 0 5px;'></div>
+                <md-menu>
+                    <md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="ctrl.openMenu($mdOpenMenu, $event)">
+                        <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+                    </md-button>
+                    <md-menu-content width="4">
+                        <md-menu-item>
+                            <md-button href = '#/admin'>Admin Home</md-button>
+                        </md-menu-item>
+                        <md-menu-item>
+                            <md-button href = '#/admin/events'>Manage Events</md-button>
+                        </md-menu-item>
+                    </md-menu-content>
+                </md-menu>
+            </div>
+        </md-toolbar>
+    </md-content>
+<div layout="row" style='padding: 5px 0px;'>
+    <h1>Create New Event</h1>
+</div>
+<div layout="column" ng-cloak>
+    <md-content class="md-padding">
+        <form ng-submit="$event.preventDefault()" name="editEventForm">
+            <div layout-gt-sm="row">
+                <div class="col-md-12">
+                    <div class='input-container'>
+                        <input type="text" ng-model="eventTitle" class="form-control" size="40" />
+                    </div>
+                </div>
+            </div>
+            <div layout-gt-sm="row">
+                <div class="col-md-12">
+                    <div class='input-container'>
+                        <input type="date" ng-model="eventDate" class="form-control" size="40" />
+                    </div>
+                </div>
+            </div>
+            <div layout-gt-sm="row">
+                <div class="col-md-12">
+                    <div class='input-container'>
+                        <div class="icon-ph"><i class="fa fa-facebook-square fa-lg"></i></div>
+                        <input disabled name="clientName" class="textbox" ng-model="getFullName" placeholder="login with facebook">
+                    </div>
+                </div>
+            </div>
+            <div layout-gt-sm="row">
+                <div class="col-md-12">
+                    <button type="button" ng-click="login()" ng-hide="fb.isLoggedIn" class="btn btn-primary navbar-btn">Login</button>
+                    <button type="button" ng-click="ctrl.cancel()" ng-show="fb.isLoggedIn" class="btn btn-primary navbar-btn">Cancel</button>
+                    <button type="button" ng-click="ctrl.createEvent()" ng-show="fb.isLoggedIn" class="btn btn-primary navbar-btn">Create</button>
+
+                </div>
+            </div>
+        </form>
+    </md-content>
+</div>
+</div>

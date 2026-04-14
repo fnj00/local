@@ -1,1 +1,39 @@
+<div>
+    <md-content>
+        <md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
+            <div class="md-toolbar-tools">
+                <div style='padding: 0 4px 0 0;'><a href="#/voting/{{eventId}}"> <img src='img/logo-xs.png'></a></div>
+                <span class="title">Admin Home</span>
+                <span flex></span>
+                <img ng-src="https://graph.facebook.com/{{getFbId}}/picture" width="25px"> <div style='font-size:10px; padding:0 0 0 5px;'></div>
+                <md-menu>
+                    <md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="openMenu($mdOpenMenu, $event)">
+                        <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+                    </md-button>
+                    <md-menu-content width="4">
+                        <md-menu-item>
+                            <md-button href = '#/voting/'>Switch to User Site</md-button>
+                        </md-menu-item>
+                    </md-menu-content>
+                </md-menu>
+            </div>
+        </md-toolbar>
+    </md-content>
+</div>
+<div  ng-controller="AdminCtrl as ctrl" ng-cloak layout="column" layout-align="center center" style='padding: 5px 0px;'>
+    <div >
+        <button type="button" ng-click='ctrl.createEvent()' class="btn btn-primary" />Create New Event</button>
+        </div>
+    <div>
+        <button type="button" ng-click='ctrl.manageEvents()' class="btn btn-primary" />Manage Events</button>
+    </div>
+<!--
+    <div>
+    <button type="button" ng-click='pushToVDJ()' class="btn btn-primary" />Edit Settings</button></div>
+-->
+</div>
 
+<div class="row">
+    <div class="col-md-12">
+    </div>
+</div>

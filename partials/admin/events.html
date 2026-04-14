@@ -1,0 +1,45 @@
+<div ng-controller="AdminCtrl" ng-cloak>
+    <md-content>
+        <md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
+            <div class="md-toolbar-tools">
+                <div style='padding: 0 4px 0 0;'><a href="#/voting/{{eventId}}"> <img src='img/logo-xs.png'></a></div>
+                <span class="title">Admin: Events List</span>
+                <span flex></span>
+                <img ng-src="https://graph.facebook.com/{{getFbId}}/picture" width="25px"> <div style='font-size:10px; padding:0 0 0 5px;'></div>
+                <md-menu>
+                    <md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="openMenu($mdOpenMenu, $event)">
+                        <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+                    </md-button>
+                    <md-menu-content width="4">
+                        <md-menu-item>
+                            <md-button href = '#/admin/'>Admin Home</md-button>
+                        </md-menu-item>
+                        <md-menu-item>
+                            <md-button href = '#/admin/create'>Create New Event</md-button>
+                        </md-menu-item>
+                    </md-menu-content>
+                </md-menu>
+            </div>
+        </md-toolbar>
+    </md-content>
+</div>
+<div class="row" ng-controller="AdminCtrl as ctrl">
+    <div class="col-md-12">
+
+        <table border="1" class="table" >
+            <tr>
+                <th>Manage Event</th>
+		<th>Manage Photos</th>
+                <th>Title</th>
+                <th>Date</th>
+
+            </tr>
+            <tr ng-repeat="events in events">
+                <td><button type="button" class="btn btn-primary" ng-click="ctrl.viewEvent(events.id, events)" />{{events.id}}</button></td>
+		<td><button type="button" class="btn btn-primary" ng-click="ctrl.viewEventPhotos(events.id, events)" />{{events.id}}</button></td>
+                <td>{{events.title}}</td>
+                <td>{{events.date}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
