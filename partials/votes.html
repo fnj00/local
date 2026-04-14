@@ -1,1 +1,73 @@
+<div>
+<md-content>
+<md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
+      <div class="md-toolbar-tools">
+	  <div style='padding: 0 4px 0 0;'><a href="#/voting/{{eventId}}"> <img src='img/logo-xs.png'></a></div>
+        <span class="title">{{eventDetails.title}}</span>
+        <span flex></span>
+		<img ng-src="https://graph.facebook.com/{{getFbId}}/picture" width="25px"> <div style='font-size:10px; padding:0 0 0 5px;'></div>
+		<md-menu>
+		<md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="openMenu($mdOpenMenu, $event)">
+          <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+        </md-button>
+        <md-menu-content width="4">
+          <md-menu-item ng-show="fb.isLoggedIn">
+            <md-button ng-click='logout()' href = '#/event/'>Sign out of FB</md-button>
+          </md-menu-item>
+            <md-menu-item>
+                <md-button href = '#/suggest/{{eventId}}'>Suggest Song</md-button>
+            </md-menu-item>
+            <md-menu-item>
+                <md-button href = '#/event/'>Change Event</md-button>
+            </md-menu-item>
+            <md-menu-item ng-if="adminPriv">
+                <md-button href = '#/admin/{{eventId}}'>Admin Event</md-button>
+            </md-menu-item>
+      </md-menu-content>
+    </md-menu>
+      </div>
+    </md-toolbar>
+	</md-content>
+	</div>
+	<div layout="row" layout-align="center center" style='padding: 5px 0px;'>
+		<button type="button" ng-click='suggest()' class="btn btn-primary" />Suggest A Song</button>
+		<div class="divider"></div>
+		<button type="button" ng-click='photo()' class="btn btn-primary" />Upload A Photo</button>
+	</div>
+<div class="row">
+    <div class="col-md-12">
+        <table border="1" class="table" ng-controller="SongsQueuedCtrl">
+            <tr>
+              <th class="votes">Votes</th>
+              <th>Title</th>
+              <th>Artist</th>
+            </tr>
+            <tr ng-repeat="votes in votes">
+              <td class="votes">
 
+<!--	      <div>{{votes.userVotes}}</div> -->
+                <form>
+                  <button class="votes" ng-init="votes.voted" ng-class="{true: 'btn-voted-false', false: 'btn-voted-true'}[!votes.voted]" ng-click=" vote(votes)">{{votes.userVotes}}</button>
+                </form>
+              </td>
+              <td>{{votes.songTitle}}</td>
+              <td>{{votes.songArtist}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        Played Songs:
+        <table border="1" class="table" ng-controller="SongsPlayedCtrl">
+            <tr>
+              <th>Title</th>
+              <th>Artist</th>
+            </tr>
+            <tr ng-repeat="votes in votes">
+              <td>{{votes.songTitle}}</td>
+	      <td>{{votes.songArtist}}</td>
+            </tr>
+        </table>
+    </div>
+</div>

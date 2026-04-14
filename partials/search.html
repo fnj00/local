@@ -1,0 +1,61 @@
+<md-content>
+  <md-toolbar class="toolbar-top">
+    <div class="md-toolbar-tools">
+      <div style='padding: 0 4px 0 0;'><a href="#"> <img src='img/logo-xs.png'></a>
+      </div>
+      <div>
+        <span class="title">EVENTS</span>
+      </div>
+      <span flex></span>
+      <img ng-show="fb.isLoggedIn" ng-src='https://graph.facebook.com/{{getFbId}}/picture' width="25px"></img>
+      <div style='font-size:10px; padding:0 0 0 5px;'>
+      </div>
+      <md-menu>
+        <md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="openMenu($mdOpenMenu, $event)">
+          <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+        </md-button>
+        <md-menu-content width="4" >
+          <md-menu-item ng-if="adminPriv">
+            <md-button href = '#/admin/'>Admin Home</md-button>
+          </md-menu-item>
+          <md-menu-item ng-show="fb.isLoggedIn">
+            <md-button ng-click='logout()' href = '#/'>Sign out of FB</md-button>
+          </md-menu-item>
+          <md-menu-item ng-hide="fb.isLoggedIn">
+            <md-button ng-click='login()' href = '#/voting/'>Login with Facebook</md-button>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
+    </div>
+  </md-toolbar>
+</md-content>
+
+<!-- Current Event DIV -->
+<div class="row center" >
+  <md-content class="md-padding" layout-xs="column" layout="row">
+    <div flex-xs flex-gt-xs="100" layout="column">
+      <md-card>
+        <a href = '#/voting/'>
+          <img ng-src="cropped-logo.png" class="md-card-image" alt="{{nextEvent.title}}">
+        </a>
+        <md-card-title>
+        </md-card-title>
+        <md-card-content>
+          <p>
+          <div><b>Date: </b>{{nextEvent.date}}</div>
+          <div><b>{{nextEvent.title}}</b> - Submit your song requests, and vote for your favorites!</div>
+          </p>
+        </md-card-content>
+        <md-card-actions layout="column" layout-align="start">
+          <md-button class="md-raised md-primary" href = '#/voting/{{nextEvent.id}}'>Click Here to Enter Event</md-button>
+        </md-card-actions>
+      </md-card>
+    </div>
+  </md-content>
+</div>
+<div class="center">
+  <form class="form-inline" ng-submit="submit()">
+    <input type="text" ng-model="text" class="form-control" size="15" name="text" placeholder="Event Id" />
+    <button type="submit" id="submit" value="Submit" class="btn btn-primary" /> Find Event</button>
+  </form>
+</div>
