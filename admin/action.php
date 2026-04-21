@@ -1,4 +1,4 @@
-<?php
+<?php  
 include("../includes/db.php");
 
 //action.php
@@ -10,7 +10,7 @@ if($input["action"] === 'edit')
 {
  $query = "
  UPDATE events
- SET title = '".$input["title"]."',
+ SET title = '".$input["title"]."', 
  date = '".$input["date"]."',
  collagex = '".$input["collagex"]."',
  collagey = '".$input["collagey"]."',
@@ -21,7 +21,7 @@ if($input["action"] === 'edit')
 
  if (!$mysqli->query($query)) {
   // Oh no! The query failed.
-  printf("Errormessage: %s\n", $mysqli->error);
+  printf("Errormessage: %s\n", $mysqli->error);      
   exit;
  }
 }
@@ -29,13 +29,13 @@ if($input["action"] === 'edit')
 if($input["action"] === 'delete')
 {
  $query = "
- DELETE FROM events
+ DELETE FROM events 
  WHERE ID = '".$input["ID"]."'
  ";
 
  if (!$mysqli->query($query)) {
   // Oh no! The query failed.
- printf("Errormessage: %s\n", $mysqli->error);
+ printf("Errormessage: %s\n", $mysqli->error);       
  exit;
  }
 }

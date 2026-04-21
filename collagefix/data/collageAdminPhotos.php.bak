@@ -1,0 +1,87 @@
+<?php
+header('Content-Type: application/json');
+
+include("../../includes/db.php");
+
+$eventId = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : 0;
+
+if ($eventId <= 0) {
+    echo json_encode(['error' => 'Missing event id']);
+    exit;
+}
+
+$eventSql = "SELECT * FROM events WHERE id = $eventId";
+if (!$eventResult = $mysqli->query($eventSql)) {
+    echo json_encode(['error' => 'Unable to load event']);
+    exit;
+}
+
+if ($eventResult->num_rows === 0) {
+    echo json_encode(['error' => 'Event not found']);
+    exit;
+}
+
+$eventRow = $eventResult->fetch_assoc();
+
+$event = [
+    'id' => $eventRow['ID'],
+    'title' => $eventRow['title'],
+    'date' => $eventRow['date'],
+    'collageImg' => '/photos/' . $eventRow['collageimg'],
+    'collageX' => $eventRow['collagex'],
+    'collageY' => $eventRow['collagey'],
+    'imgWidth' => $eventRow['imgWidth'],
+    'imgHeight' => $eventRow['imgHeight']
+];
+
+$photosSql = "SELECT * FROM photos WHERE eventId = $eventId AND approved = 1";
+if (!$photosResult = $mysqli->query($photosSql)) {
+    echo json_encode(['error' => 'Unable to load photos']);
+    exit;
+}
+
+$visible = [];
+$hidden = [];
+$usedTiles = [];
+
+while ($row = $photosResult->fetch_assoc()) {
+    $photoId = $row['ID'];
+    $filename = $row['filename'];
+    $photoUrl = "/photos/$eventId/$filename.jpg";
+    $photonum = isset($row['photonum']) ? (int)$row['photonum'] : 0;
+
+    if ($photonum > 0) {
+        $visible[] = [
+            'photoId' => $photoId,
+            'tileId' => $photonum,
+            'fileName' => $filename . '.jpg',
+            'photoUrl' => $photoUrl
+        ];
+        $usedTiles[] = $photonum;
+    } else {
+        $hidden[] = [
+            'photoId' => $photoId,
+            'fileName' => $filename . '.jpg',
+            'photoUrl' => $photoUrl
+        ];
+    }
+}
+
+$totalTiles = ((int)$event['collageX']) * ((int)$event['collageY']);
+$emptyTiles = [];
+
+for ($i = 1; $i <= $totalTiles; $i++) {
+    if (!in_array($i, $usedTiles, true)) {
+        $emptyTiles[] = $i;
+    }
+}
+
+echo json_encode([
+    'event' => $event,
+    'visible' => $visible,
+    'hidden' => $hidden,
+    'emptyTiles' => $emptyTiles
+]);
+
+$mysqli->close();
+?>

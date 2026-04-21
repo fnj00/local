@@ -2,25 +2,52 @@
 
 include("../includes/db.php");
 
-if(isset($_GET['id']) && is_numeric($_GET['id'])) {
-  $eventID = (int) $_GET['id'];
-  $sql = "SELECT * from photos WHERE eventId = $eventID AND approved = 1 AND photonum IS NOT NULL AND photonum > '0'";
+header("Content-Type: application/json");
 
-  if (!$result = $mysqli->query($sql)) {
-    // Oh no! The query failed.
-    echo "Sorry, the website is experiencing problems.";
-    exit;
-  } else {
-    $rows = array();
-    while ($r = $result->fetch_assoc() ) {
-      $filename = $r['filename'];
-      $rows[$r['photonum']] = "/photos/$eventID/$filename.jpg";
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+    $eventID = (int) $_GET['id'];
+
+    $sql = "SELECT filename, photonum
+            FROM photos
+            WHERE eventId = $eventID
+              AND approved = 1
+              AND photonum IS NOT NULL
+              AND photonum > 0";
+
+    $result = $mysqli->query($sql);
+
+    if (!$result) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Sorry, the website is experiencing problems.'
+        ]);
+        $mysqli->close();
+        exit;
     }
-    print json_encode($rows);
+
+    $rows = [];
+
+    while ($r = $result->fetch_assoc()) {
+        $filename = $r['filename'];
+        $photonum = (int)$r['photonum'];
+
+        // Return the thumbnail JPG path.
+        // Frontend will automatically try .webp first and fall back to .jpg.
+        $rows[$photonum] = "/photos/$eventID/{$filename}_thumb.jpg";
+    }
+
+    $result->free();
+    $mysqli->close();
+
+    echo json_encode($rows);
     exit;
-  }
 }
 
 $mysqli->close();
 
+echo json_encode([
+    'success' => false,
+    'message' => 'Invalid or missing event id.'
+]);
+exit;
 ?>

@@ -1,0 +1,251 @@
+(()=>{
+    const t = [[4, 1], [4, 2], [3, 2], [3, 3], [2, 3], [2, 4], [1, 4]].map(t=>t.concat(t[0] / t[1]))
+      , i = (i,s)=>t.map(t=>[Math.abs(t[2] - i / s), `${t[0]}x${t[1]}`]).sort((t,i)=>t[0] - i[0]).shift().pop()
+      , s = t=>Math.floor(Math.random() * t)
+      , e = (t,i)=>t.map((t,i)=>({
+        v: t,
+        i: i
+    })).filter(t=>i(t.v)).reverse().map(i=>t.splice(i.i, 1)[0])
+      , h = (t,i,s,e,h)=>{
+        e = "number" == typeof e ? Math.max(0, Math.min(1, e)) : .5,
+        h = "number" == typeof h ? Math.max(0, Math.min(1, h)) : .5;
+        let a, l, n, r, o = t.width, d = t.height, c = Math.min(i / o, s / d), g = o * c, f = d * c, m = 1;
+        return g < i && (m = i / g),
+        Math.abs(m - 1) < 1e-14 && f < s && (m = s / f),
+        n = o / ((g *= m) / i),
+        r = d / ((f *= m) / s),
+        {
+            x: a = Math.max(0, Math.min(o, (o - n) * e)),
+            y: l = Math.max(0, Math.min(d, (d - r) * h)),
+            w: n,
+            h: r
+        }
+    }
+    ;
+    class a {
+        constructor(t) {
+            Object.assign(this, t),
+            this.start = Date.now()
+        }
+        resize(t, i) {
+            let s = Object.assign(document.createElement("canvas"), {
+                width: t,
+                height: i,
+                complete: 1
+            })
+              , e = s.getContext("2d");
+            e.clearRect(0, 0, s.width, s.height);
+            let a = h(this.img, t, i);
+//            e.imageSmoothingQuality = "medium";
+//            e.imageSmoothingEnabled = true;
+//            e.mozImageSmoothingEnabled = false;
+//            e.webkitImageSmoothingEnabled = true;
+//            e.msImageSmoothingEnabled = false;
+            e.drawImage(this.img, a.x, a.y, a.w, a.h, 0, 0, t, i),
+            this.buf = s
+        }
+        draw(t, i, s, e, a, l) {
+            let n = Date.now();
+            if (i += l = l || 0,
+            s += l,
+            e -= 2 * l,
+            a -= 2 * l,
+            this.end && this.endcb && n > this.end + 1e3)
+                return this.endcb(this);
+            let r = (n - this.start) / 1e3;
+            if (this.end && (r = 1 - (n - this.end) / 1e3),
+            (r = Math.min(Math.max(r, 0), 1)) < .01)
+                return;
+            t.save();
+            let o = this.buf || this.img
+              , d = h(o, e, a);
+            t.globalAlpha = Math.min(Math.max(r, 0), 1),
+//            t.imageSmoothingQuality = "medium";
+//            t.imageSmoothingEnabled = true;
+//            t.mozImageSmoothingEnabled = false;
+//            t.webkitImageSmoothingEnabled = true;
+//            t.msImageSmoothingEnabled = false;
+            t.drawImage(o, d.x, d.y, d.w, d.h, i, s, e, a),
+            t.restore()
+        }
+        del(t) {
+            this.end || (this.end = Date.now(),
+            this.endcb = t)
+        }
+    }
+    window.Grid = class {
+        constructor(t, i, s) {
+            this._canvas = t,
+            this._ctx = t.getContext("2d"),
+            this._size = [i || 1, s || 1],
+            this._imgs = [],
+            this._list = [],
+            this._oldlist = [],
+            this.padding = 2,
+            this._lastChange = 0
+        }
+        get size() {
+            return {
+                w: this._size[0],
+                h: this._size[1]
+            }
+        }
+        get csize() {
+            return [this._canvas.width / this.size.w, this._canvas.height / this.size.h]
+        }
+        resize(t, i) {
+            t = Math.floor(t),
+            i = Math.floor(i),
+            this._size = [t, i],
+            this.del(t, 0, t, i),
+            this.del(0, i, t, i)
+        }
+        check(t, i, s, e) {
+            return arguments.length < 3 && (s = 1),
+            arguments.length < 4 && (e = s),
+            t + s - 1 >= this._size[0] || i + e - 1 >= this._size[1] || this.get.apply(this, arguments).length > 0
+        }
+        get(t, i, s, e) {
+            return arguments.length < 3 && (s = 1),
+            arguments.length < 4 && (e = s),
+            this._list.filter(h=>t <= h.x + h.w - .1 && h.x <= t + s - .1 && i <= h.y + h.h - .1 && h.y <= i + e - .1)
+        }
+        find(t) {
+            return this._list.filter(i=>i.obj === t || i.obj.src === t || i.obj.img === t)
+        }
+        add(t, i, s, e, h) {
+            arguments.length < 4 && (e = 1),
+            arguments.length < 5 && (h = e);
+            let[a,l] = this.csize;
+            t.resize(e * a, h * l);
+            let n = this.get(i, s, e, h);
+            return this._list.push({
+                obj: t,
+                x: i,
+                y: s,
+                w: e,
+                h: h
+            }),
+            n
+        }
+        del(t) {
+            if (arguments.length > 1)
+                return this.del(this.get.apply(this, arguments));
+            t = [].concat(t || []),
+            setTimeout(()=>{
+                e(this._list, i=>t.indexOf(i) >= 0 || t.indexOf(i.obj) >= 0)
+            }
+            , 10)
+        }
+        loadImg(t) {
+            let s = Object.assign(new Image, {
+                src: t
+            });
+            s.onload = (()=>{
+                let e = i(s.width, s.height);
+                e = [e, e.split("x").map(t=>t - 1).join("x")].join(","),
+                this._imgs.push({
+                    src: t,
+                    img: s,
+                    size: `${e}`
+                }),
+                this._oldlist.length < this._imgs.length / 4 && this._oldlist.push(0)
+            }
+            )
+        }
+        load(t) {
+            if ("string" == typeof t)
+                return this.load([t]);
+            if (t instanceof Image)
+                return this.load([t.src]);
+            if (!(t instanceof Array))
+                return;
+            const i = this.loadImg.bind(this)
+              , s = this.find.bind(this)
+              , h = this.del.bind(this)
+              , a = this._imgs;
+            e(a, i=>!t.some(t=>i.src == t)).forEach(t=>{
+                s(t.src).forEach(t=>t.obj.del(()=>h(t))),
+                h(t)
+            }
+            ),
+            t.filter(t=>!a.some(i=>i.src == t)).forEach(t=>{
+                i(t)
+            }
+            ),
+            this._oldlist.splice(Math.max(0, Math.floor(this._imgs.length / 4 - 5)), this._oldlist.length)
+        }
+        fill(t) {
+            const i = this.check.bind(this)
+              , s = this.add.bind(this);
+            let e = [];
+            for (let t = 0; t < this._size[0]; t++)
+                for (let s = 0; s < this._size[1]; s++)
+                    i(t, s, 1, 1) || e.push([t, s]);
+            e.sort(()=>Math.random() - .5).forEach(([e,h])=>{
+                let a, l, n = [];
+                for (let t = 3; t > 0; t--)
+                    for (let s = 2; s > 0; s--)
+                        i(e, h, t, s) || n.push([t, s]);
+                for (n = n.sort((t,i)=>t[0] + t[1] < i[0] + i[1]); !a && n.length > 0; )
+                    l = n.shift(),
+                    a = t(l[0], l[1]);
+                a && s(a, e, h, l[0], l[1])
+            }
+            )
+        }
+        has(t) {
+            for (let i = 0; i < this._list.length; i++)
+                if (t(this._list[i]))
+                    return this._list[i];
+            return null
+        }
+        forEach(t) {
+            this._list.forEach(t)
+        }
+        render(t) {
+            const i = this
+              , e = this.del.bind(this)
+              , h = this._canvas
+              , l = this._ctx
+              , n = this._imgs
+              , r = this._oldlist
+              , o = t=>{
+                t.obj.del(()=>e(t)),
+                r.push(t.obj.img),
+                r.shift()
+            }
+            ;
+            if (this._lastChange < Date.now() - 1e3 * (t || 10))
+                switch (this._lastChange = Date.now(),
+                s(2)) {
+                case 0:
+                    i.get(s(this.size.w - 1), s(this.size.h - 1), s(3) + 2, s(3) + 2).forEach(o);
+                    break;
+                default:
+                    i._list.slice(0, s(3) + 4).forEach(o)
+                }
+            i.fill((t,e)=>{
+                let h = n.filter(t=>r.indexOf(t.img) < 0).filter(t=>!i.has(i=>i.obj.img === t.img)).filter(i=>i.size.split(",").some(i=>i == `${t}x${e}`)).sort(()=>s(3) - 1).shift();
+                if (h)
+                    return new a(h)
+            }
+            ),
+            i.fill((t,e)=>{
+                if (1 != t || 1 != e)
+                    return;
+                let h = n.filter(t=>r.indexOf(t.img) < 0).filter(t=>!i.has(i=>i.obj.img === t.img)).sort(()=>s(3) - 1).shift();
+                return h ? new a(h) : void 0
+            }
+            ),
+            l.setTransform(1, 0, 0, 1, 0, 0),
+            l.clearRect(0, 0, h.width, h.height);
+            let[d,c] = this.csize;
+            this.forEach(t=>{
+                t.obj.draw(l, t.x * d, t.y * c, t.w * d, t.h * c, this.padding)
+            }
+            )
+        }
+    }
+}
+)();

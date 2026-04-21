@@ -1,62 +1,81 @@
 <?php
-include('../includes/db.php');
-$target_dir = "../photos/";
-$upload_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-$uploadOk = 1;
-$imageFileType = strtolower(pathinfo($upload_file,PATHINFO_EXTENSION));
-$imageFileName = $_POST["eventId"] . "." . $imageFileType;
-$target_file = $target_dir . $imageFileName;
+include("../includes/db.php");
 
-
-// Check if image file is a actual image or fake image
-if(isset($_POST["submit"])) {
-  $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
-  if($check !== false) {
-    echo "File is an image - " . $check["mime"] . ".";
-    $imgHeight = $check[1];
-    $imgWidth = $check[0];
-    $uploadOk = 1;
-  } else {
-    echo "File is not an image.";
-    $uploadOk = 0;
-  }
+function fail_and_redirect(string $message, int $eventId = 0): void {
+    $target = 'index.php';
+    if ($eventId > 0) {
+        $target .= '?edit=' . $eventId;
+    }
+    header('Location: ' . $target . '&upload_message=' . urlencode($message));
+    exit;
 }
 
-// Check file size
-if ($_FILES["fileToUpload"]["size"] > 30000000) {
-  echo "Sorry, your file is too large.";
-  $uploadOk = 0;
+$eventId = isset($_POST['eventId']) ? (int)$_POST['eventId'] : 0;
+
+if ($eventId <= 0) {
+    die('Missing event ID.');
 }
 
-// Allow certain file formats
-if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-&& $imageFileType != "gif" ) {
-  echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-  $uploadOk = 0;
+$stmt = $mysqli->prepare("SELECT ID FROM events WHERE ID = ?");
+$stmt->bind_param('i', $eventId);
+$stmt->execute();
+$result = $stmt->get_result();
+$event = $result->fetch_assoc();
+$stmt->close();
+
+if (!$event) {
+    die('Event not found.');
 }
 
-// Check if $uploadOk is set to 0 by an error
-if ($uploadOk == 0) {
-  echo "Sorry, your file was not uploaded.";
-// if everything is ok, try to upload file
-} else {
-  if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-    $query = "
-      UPDATE events
-      SET collageimg = '".$imageFileName."',
-      imgHeight = '".$imgHeight."',
-      imgWidth = '".$imgWidth."'
-      WHERE ID = '".$_POST["eventId"]."'
-    ";
-
-   if (!$mysqli->query($query)) {
-     // Oh no! The query failed.
-     printf("Errormessage: %s\n", $mysqli->error);
-     exit;
-   }
-    echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
-  } else {
-    echo "Sorry, there was an error uploading your file.";
-  }
+if (!isset($_FILES['fileToUpload']) || $_FILES['fileToUpload']['error'] !== UPLOAD_ERR_OK) {
+    die('No file uploaded or upload failed.');
 }
-?>
+
+$check = getimagesize($_FILES['fileToUpload']['tmp_name']);
+if ($check === false) {
+    die('Uploaded file is not a valid image.');
+}
+
+$imgWidth = (int)$check[0];
+$imgHeight = (int)$check[1];
+
+$uploadDir = '../photos/';
+if (!is_dir($uploadDir)) {
+    mkdir($uploadDir, 0775, true);
+}
+
+$originalName = basename($_FILES['fileToUpload']['name']);
+$extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'], true)) {
+    die('Only JPG, JPEG, PNG, and GIF files are allowed.');
+}
+
+if ($_FILES['fileToUpload']['size'] > 30000000) {
+    die('File is too large.');
+}
+
+$safeBaseName = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', pathinfo($originalName, PATHINFO_FILENAME));
+$storedFileName = $safeBaseName . '_' . time() . '.' . $extension;
+$targetFile = $uploadDir . $storedFileName;
+
+if (!move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $targetFile)) {
+    die('Unable to move uploaded file.');
+}
+
+$stmt = $mysqli->prepare("
+    UPDATE events
+    SET collageimg = ?, imgHeight = ?, imgWidth = ?
+    WHERE ID = ?
+");
+$stmt->bind_param('siii', $storedFileName, $imgHeight, $imgWidth, $eventId);
+
+if (!$stmt->execute()) {
+    $stmt->close();
+    die('Unable to update event image metadata.');
+}
+
+$stmt->close();
+
+header('Location: index.php?edit=' . $eventId);
+exit;

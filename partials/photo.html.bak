@@ -1,0 +1,73 @@
+<md-content>
+<md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
+      <div class="md-toolbar-tools">
+	  <div style='padding: 0 4px 0 0;'><a href="#/voting/{{eventId}}"> <img src='img/logo-xs.png'></a></div>
+        <span class="title">{{eventTitle}}</span>
+        <span flex></span>
+		<img ng-src="https://graph.facebook.com/{{getFbId}}/picture" width="25px"> <div style='font-size:10px; padding:0 0 0 5px;'></div>
+      <md-menu>
+        <md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="openMenu($mdOpenMenu, $event)">
+          <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+        </md-button>
+	<md-menu-content width="4">
+          <md-menu-item ng-show="fb.isLoggedIn">
+            <md-button ng-click='logout()' href = '#/'>Sign out of FB</md-button>
+          </md-menu-item>
+	  <md-menu-item>
+            <md-button href = '#/voting/{{eventId}}'>Back to Event</md-button>
+          </md-menu-item>
+          <md-menu-item>
+            <md-button href = '#/event/'>Change Event</md-button>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
+      </div>
+    </md-toolbar>
+	</md-content>
+<div layout-gt-sm="row">
+    <div class="col-md-12">
+        <h3>Upload photos:</h3>
+    </div>
+</div>
+
+<div ng-controller="PhotoUploadCtrl as ctrl" layout="column" ng-cloak>
+    <md-content class="md-padding">
+	<sz-uploader sz-file="ctrl.uploadFile($item,getFbId,eventId,getFullName)" class="md-raised md-primary">
+		<md-icon md-svg-icon="img/icons/add_a_photo.svg" style="color:inherit;">add_a_photo</md-icon>
+		<span>Upload Photos</span>
+	</sz-uploader>
+    </md-content>
+</div>
+
+<div layout="row" style='padding: 5px 0px;'>
+    <h3>My Uploads:</h3>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table border="1" class="table">
+            <tr>
+                <th>Pending Approval</th>
+            </tr>
+            <tr ng-repeat="photos in photospending">
+                <td>
+                  <img ng-src="/photos/{{photos.eventId}}/{{photos.name}}" width="200px">
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="row" >
+    <div class="col-md-12">
+        <table border="1" class="table">
+           <tr>
+                <th>Approved</th>
+            </tr>
+            <tr ng-repeat="photos in photosapproved">
+                <td>
+                  <img ng-src="/photos/{{photos.eventId}}/{{photos.name}}" width="200px">
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="modal"><!-- Place at bottom of page --></div>

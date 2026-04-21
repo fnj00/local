@@ -1,0 +1,105 @@
+div {
+    background-color: black;
+    -webkit-print-color-adjust: exact;
+    position: relative;
+}
+
+#loaderDiv {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 120px;
+  height: 120px;
+  margin: -76px 0 0 -76px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.tile {
+    float: left;
+    text-align: center;
+    -webkit-transition: all .1s linear;
+    -moz-transition: all .1s linear;
+    -ms-transition: all .1s linear;
+    -o-transition: all .1s linear;
+}
+.tile span {
+    display: block;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.tile:hover {
+    opacity: .55;
+}
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  font-color: white;
+}
+
+#text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: grey;
+}
+
+#eventName,#eventdate {
+  font-size: 6vw;
+  color: white;
+  font-family: Arizonia;
+  display: inline;
+}
+
+#logo {
+      float: bottom;
+      height: 20vh;
+      width: 30vw;
+}
+
+#bottom {
+      float: bottom;
+      height: 20vh;
+      width: 70vw;
+}
+
+#message {
+  font-size: 3vw;
+  color: white;
+  font-family: Permanent-Marker;
+}
+
+@font-face {
+  font-family: Arizonia;
+  src: url(fonts/Arizonia-Regular.ttf);
+}
+
+@font-face {
+  font-family: Permanent-Marker;
+  src: url(fonts/PermanentMarker-Regular.ttf);
+}
+
+body {
+  overflow: hidden;
+  background-color: black;
+}
