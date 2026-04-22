@@ -1,41 +1,35 @@
 <md-content>
-    <md-toolbar class="toolbar-top">
-        <div class="md-toolbar-tools">
-            <div style='padding: 0 4px 0 0;'><a href="#"> <img src='img/logo-xs.png'></a></div>
-            <div>
-                <span class="title">EVENTS</span></div>
-            <span flex></span>
-            <img ng-show="fb.isLoggedIn" ng-src='https://graph.facebook.com/{{getFbId}}/picture' width="25px"> <div style='font-size:10px; padding:0 0 0 5px;'></div>
-            <md-menu>
-                <md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="openMenu($mdOpenMenu, $event)">
-                    <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
-                </md-button>
-                <md-menu-content width="4" >
-                    <md-menu-item ng-show="fb.isLoggedIn">
-                        Logged In as {{getFirstName}}
-                    </md-menu-item>
-                    <md-menu-item ng-show="fb.isLoggedIn">
-                        <md-button ng-click='logout()' href = '#/login/'>Sign out of FB</md-button>
-                    </md-menu-item>
-                    <md-menu-item ng-hide="fb.isLoggedIn">
-                        <md-button ng-click='login()' href = '#/login/'>Login with Facebook</md-button>
-                    </md-menu-item>
-                </md-menu-content>
-            </md-menu>
-        </div>
-    </md-toolbar>
+  <md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
+    <div class="md-toolbar-tools">
+      <div style="padding: 0 4px 0 0;">
+        <a href="#/event/">
+          <img src="img/logo-xs.png" alt="Logo">
+        </a>
+      </div>
+
+      <span class="title">Welcome</span>
+      <span flex></span>
+    </div>
+  </md-toolbar>
 </md-content>
-<div class="center">
-    <div class="row">
-	<div class="col-md-12" style='padding:4px 0 0 0;'>
-        <a class="col-md-12" href="#"><img src="cropped-logo.png" alt="JoeDeeJay LOGO" height="70"></a>
-    </div>
-        <div class="col-md-12" ng-controller="FacebookCtrl">
-            <div class="form-inline">
-                <button ng-click='login()' class="loginBtn loginBtn--facebook">
-                    Continue with Facebook
-                </button>
-            </div>
-        </div>
-    </div>
+
+<div layout="column" layout-padding style="max-width: 700px; margin: 0 auto;">
+  <md-card>
+    <md-card-content>
+      <h2 style="margin-top: 0;">Public Login Is No Longer Required</h2>
+      <p class="md-body-1">
+        You can browse events, request songs, and upload photos without signing in.
+      </p>
+
+      <div layout="row" layout-wrap layout-gap="12" style="margin-top: 18px;">
+        <md-button class="md-raised md-primary" href="#/event/">
+          Browse Events
+        </md-button>
+
+        <md-button class="md-raised" href="/admin/login.php">
+          Admin Login
+        </md-button>
+      </div>
+    </md-card-content>
+  </md-card>
 </div>

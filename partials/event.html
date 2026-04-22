@@ -1,28 +1,23 @@
 <md-content>
-  <md-toolbar class="toolbar-top">
+  <md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
     <div class="md-toolbar-tools">
-      <div style='padding: 0 4px 0 0;'><a href="#"> <img src='img/logo-xs.png'></a>
+      <div style="padding: 0 4px 0 0;">
+        <a href="#/event/">
+          <img src="img/logo-xs.png" alt="Logo">
+        </a>
       </div>
-      <div>
-        <span class="title">EVENTS</span>
-      </div>
+
+      <span class="title">Events</span>
       <span flex></span>
-      <img ng-show="fb.isLoggedIn" ng-src='https://graph.facebook.com/{{getFbId}}/picture' width="25px"></img>
-      <div style='font-size:10px; padding:0 0 0 5px;'>
-      </div>
+
       <md-menu>
-        <md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="openMenu($mdOpenMenu, $event)">
+        <md-button class="md-icon-button" aria-label="Menu" ng-click="openMenu($mdOpenMenu, $event)">
           <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
         </md-button>
-        <md-menu-content width="4" >
-          <md-menu-item ng-if="adminPriv">
-            <md-button href = '#/admin/'>Admin Home</md-button>
-          </md-menu-item>
-          <md-menu-item ng-show="fb.isLoggedIn">
-            <md-button ng-click='logout()' href = '#/event/{{eventDetails.id}}'>Sign out of FB</md-button>
-          </md-menu-item>
-          <md-menu-item ng-hide="fb.isLoggedIn">
-            <md-button ng-click='login()' href = '#/event/{{eventDetails.id}}'>Login with Facebook</md-button>
+
+        <md-menu-content width="4">
+          <md-menu-item>
+            <md-button href="#/event/">Browse Events</md-button>
           </md-menu-item>
         </md-menu-content>
       </md-menu>
@@ -30,31 +25,57 @@
   </md-toolbar>
 </md-content>
 
-<!-- Current Event DIV -->
-<div class="row center" ng-controller="FacebookCtrl" >
-  <md-content class="md-padding" layout-xs="column" layout="row">
-    <div flex-xs flex-gt-xs="100" layout="column">
-      <md-card>
-        <md-card-title>
-        </md-card-title>
-        <md-card-content>
-          <p>
-          <div><h2><b>{{eventDetails.title}}</b></h2></div>
-          <div><h3><b> {{eventDateFormat}}</b></h2></div>
-          <div>Submit your song requests, and vote for your favorites!</div>
+<div layout="column" layout-padding style="max-width: 900px; margin: 0 auto;">
+  <md-card ng-if="eventDetails">
+    <md-card-content>
+      <div layout="column" layout-gt-sm="row" layout-gap="24">
+        <div flex="100" flex-gt-sm="55">
+          <h1 style="margin-top: 0;">{{eventDetails.title}}</h1>
+          <h3 style="margin-top: 0;" ng-if="eventDateFormat">{{eventDateFormat}}</h3>
+
+          <p class="md-body-1">
+            Submit your song requests, vote for your favorites, and upload photos for this event.
           </p>
-        </md-card-content>
-        <md-card-actions layout="column" layout-align="start">
-          <md-button class="md-raised md-primary" href = '#/voting/{{eventDetails.id}}'>Click Here to Enter Event</md-button>
-        </md-card-actions>
-      </md-card>
-    </div>
-  </md-content>
-</div>
-<div class="center">
-  <h4><b>Not the event you are looking for? Enter your event id in the form below:</b></h4>
-  <form class="form-inline" ng-submit="submit()">
-    <input type="text" ng-model="text" class="form-control" size="15" name="text" placeholder="Event Id" />
-    <button type="submit" id="submit" value="Submit" class="btn btn-primary" /> Find Event</button>
-  </form>
+
+          <div layout="row" layout-wrap layout-gap="12" style="margin-top: 18px;">
+            <md-button class="md-raised md-primary" href="#/voting/{{eventDetails.id || eventId}}">
+              Enter Event
+            </md-button>
+
+            <md-button class="md-raised" href="#/suggest/{{eventDetails.id || eventId}}">
+              Request a Song
+            </md-button>
+
+            <md-button class="md-raised" href="#/photo/{{eventDetails.id || eventId}}">
+              Upload a Photo
+            </md-button>
+          </div>
+        </div>
+
+        <div flex="100" flex-gt-sm="45" ng-if="eventPhoto">
+          <img ng-src="{{eventPhoto}}" alt="{{eventDetails.title}}" style="width: 100%; border-radius: 8px;">
+        </div>
+      </div>
+    </md-card-content>
+  </md-card>
+
+  <md-card>
+    <md-card-content>
+      <h3 style="margin-top: 0;">Find a Different Event</h3>
+      <p class="md-body-1">
+        Enter your event ID below if this is not the event you are looking for.
+      </p>
+
+      <form ng-submit="submit()" novalidate>
+        <md-input-container class="md-block">
+          <label>Event ID</label>
+          <input ng-model="text" autocomplete="off">
+        </md-input-container>
+
+        <md-button class="md-raised md-primary" type="submit">
+          Find Event
+        </md-button>
+      </form>
+    </md-card-content>
+  </md-card>
 </div>

@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/bootstrap.php';
-require_admin();
 
-header('Location: /admin/events.php');
+admin_logout();
+
+header('Location: /admin/login.php');
 exit;

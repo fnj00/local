@@ -1,64 +1,154 @@
 <md-content>
-<md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
-      <div class="md-toolbar-tools">
-	  <div style='padding: 0 4px 0 0;'><a href="#/voting/{{eventId}}"> <img src='img/logo-xs.png'></a></div>
-        <span class="title">{{eventTitle}}</span>
-        <span flex></span>
-		<img ng-src="https://graph.facebook.com/{{getFbId}}/picture" width="25px"> <div style='font-size:10px; padding:0 0 0 5px;'></div>
+  <md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
+    <div class="md-toolbar-tools">
+      <div style="padding: 0 4px 0 0;">
+        <a href="#/voting/{{eventId}}">
+          <img src="img/logo-xs.png" alt="Logo">
+        </a>
+      </div>
+
+      <span class="title">{{eventTitle || 'Photo Upload'}}</span>
+      <span flex></span>
+
       <md-menu>
-        <md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="openMenu($mdOpenMenu, $event)">
+        <md-button class="md-icon-button" aria-label="Menu" ng-click="openMenu($mdOpenMenu, $event)">
           <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
         </md-button>
-	<md-menu-content width="4">
-          <md-menu-item ng-show="fb.isLoggedIn">
-            <md-button ng-click='logout()' href = '#/'>Sign out of FB</md-button>
-          </md-menu-item>
-	  <md-menu-item>
-            <md-button href = '#/voting/{{eventId}}'>Back to Event</md-button>
+
+        <md-menu-content width="4">
+          <md-menu-item>
+            <md-button href="#/voting/{{eventId}}">Back to Event</md-button>
           </md-menu-item>
           <md-menu-item>
-            <md-button href = '#/event/'>Change Event</md-button>
+            <md-button href="#/event/">Change Event</md-button>
           </md-menu-item>
         </md-menu-content>
       </md-menu>
-      </div>
-    </md-toolbar>
-	</md-content>
-<div ng-controller="PhotoUploadCtrl as ctrl" layout="column" ng-cloak>
-    <md-content class="md-padding">
-        <iframe id="phonetest" style="width:100vw" frameBorder="0" src="phonetest/"></iframe>
-    </md-content>
-</div>
+    </div>
+  </md-toolbar>
+</md-content>
 
-<div layout="row" style='padding: 5px 0px;'>
-    <h3>My Uploads:</h3>
+<div layout="column" layout-padding style="max-width: 1100px; margin: 0 auto;">
+  <md-card>
+    <md-card-content>
+      <div layout="column" layout-gt-sm="row" layout-gap="24">
+        <div flex="100" flex-gt-sm="60">
+          <h2 style="margin-top: 0;">Upload a Photo</h2>
+          <p class="md-body-1">
+            Share a photo for <strong>{{eventTitle}}</strong>. After upload, it may appear in the collage once approved.
+          </p>
+
+          <div class="md-caption" ng-if="cropRatioLabel" style="margin-bottom: 12px;">
+            Crop ratio: {{cropRatioLabel}}
+          </div>
+
+          <div ng-if="uploadNotice"
+               style="margin: 14px 0; font-weight: 600;"
+               ng-style="uploadNoticeType === 'error' ? {'color':'#b00020'} : {'color':'#2e7d32'}">
+            {{uploadNotice}}
+          </div>
+
+          <div ng-if="isUploading" style="margin: 10px 0 16px; color: #1565c0;">
+            Upload in progress…
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <input
+              id="directPhotoUpload"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              file-change="onPhotoSelected($event)"
+              style="display: block; width: 100%; margin-bottom: 12px;">
+          </div>
+
+          <div ng-if="selectedFileName" style="margin-bottom: 12px;">
+            <strong>Selected:</strong> {{selectedFileName}}
+          </div>
+
+          <div ng-if="rawPreviewImage" style="margin-bottom: 16px;">
+            <div style="margin-bottom: 10px; font-weight: 600;">Crop your photo</div>
+            <div style="width: 100%; max-width: 520px; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 8px;">
+              <img id="cropperTarget"
+                   ng-src="{{rawPreviewImage}}"
+                   alt="Crop preview"
+                   style="display:block; max-width: 100%;">
+            </div>
+          </div>
+
+          <div ng-if="croppedPreviewImage" style="margin: 16px 0;">
+            <div style="margin-bottom: 10px; font-weight: 600;">Cropped preview</div>
+            <img ng-src="{{croppedPreviewImage}}"
+                 alt="Cropped preview"
+                 style="width: 100%; max-width: 420px; border: 1px solid #ddd; border-radius: 8px; display: block; background: #fff;">
+          </div>
+
+          <div layout="row" layout-wrap layout-gap="12">
+            <md-button class="md-raised"
+                       ng-click="refreshCropPreview()"
+                       ng-disabled="!cropperReady || isUploading">
+              Refresh Crop Preview
+            </md-button>
+
+            <md-button class="md-raised md-primary"
+                       ng-click="uploadSelectedPhoto()"
+                       ng-disabled="isUploading || !cropperReady">
+              {{isUploading ? 'Uploading…' : 'Upload Cropped Photo'}}
+            </md-button>
+
+            <md-button class="md-raised"
+                       ng-click="clearSelectedPhoto()"
+                       ng-disabled="isUploading || (!selectedFile && !rawPreviewImage)">
+              Clear
+            </md-button>
+          </div>
+        </div>
+
+        <div flex="100" flex-gt-sm="40">
+          <div ng-if="eventPhoto">
+            <img ng-src="{{eventPhoto}}" alt="{{eventTitle}}" style="width: 100%; border-radius: 8px; margin-bottom: 16px;">
+          </div>
+
+          <md-card style="margin:0;">
+            <md-card-content>
+              <h3 style="margin-top: 0;">Tips</h3>
+              <ul style="margin-top: 8px;">
+                <li>On phones, tapping the picker should let you take a photo with your camera.</li>
+                <li>The crop box is locked to the event’s aspect ratio.</li>
+                <li>Use “Refresh Crop Preview” to confirm the final crop before uploading.</li>
+              </ul>
+            </md-card-content>
+          </md-card>
+        </div>
+      </div>
+    </md-card-content>
+  </md-card>
+
+  <md-card>
+    <md-card-content>
+      <div layout="row" layout-align="space-between center" layout-wrap>
+        <h3 style="margin: 0;">Live Collage Photos</h3>
+        <md-button class="md-raised" ng-click="refreshPhotos()">Refresh</md-button>
+      </div>
+
+      <div ng-if="!publicPhotos.length" style="margin-top: 16px;" class="md-caption">
+        No public collage photos are available yet for this event.
+      </div>
+
+      <div layout="row" layout-wrap style="margin-top: 12px;">
+        <div ng-repeat="photo in publicPhotos track by (photo.id || $index)" style="width: 180px; margin: 8px;">
+          <a ng-href="{{photo.fullUrl || photo.image}}"
+             target="_blank"
+             rel="noopener"
+             style="display:block; text-decoration:none;">
+            <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #fff;">
+              <img ng-src="{{photo.thumbUrl || photo.image || photo.fullUrl}}"
+                   alt="Event photo"
+                   style="width: 100%; height: 180px; object-fit: cover; display: block;">
+            </div>
+          </a>
+        </div>
+      </div>
+    </md-card-content>
+  </md-card>
 </div>
-<div class="row">
-    <div class="col-md-12">
-        <table border="1" class="table">
-            <tr>
-                <th>Pending Approval</th>
-            </tr>
-            <tr ng-repeat="photos in photospending">
-                <td>
-			<a target="_blank" href="/photos/{{photos.eventId}}/{{photos.name}}.png"><img ng-src="/photos/{{photos.eventId}}/{{photos.name}}.jpg" width="200px"></a>
-                </td>
-            </tr>
-        </table>
-    </div>
-</div>
-<div class="row" >
-    <div class="col-md-12">
-        <table border="1" class="table">
-           <tr>
-                <th>Approved</th>
-            </tr>
-            <tr ng-repeat="photos in photosapproved">
-                <td>
-			<a target="_blank" href="/photos/{{photos.eventId}}/{{photos.name}}.png"><img ng-src="/photos/{{photos.eventId}}/{{photos.name}}.jpg" width="200px"></a>
-                </td>
-            </tr>
-        </table>
-    </div>
-</div>
-<div class="modal"><!-- Place at bottom of page --></div>

@@ -11,7 +11,6 @@
     let newImgHeight = 0;
     let opacity = 0.40;
     let eventId = null;
-
     const gap = 2;
 
     function getEventIdFromUrl() {
@@ -22,7 +21,10 @@
     }
 
     function formatDateParts(dateString) {
-        const [year, month, day] = dateString.split('-').map(v => parseInt(v, 10));
+        const parts = dateString.split('-').map(v => parseInt(v, 10));
+        const year = parts[0];
+        const month = parts[1];
+        const day = parts[2];
         const monthname = 'January,February,March,April,May,June,July,August,September,October,November,December'.split(',')[month - 1];
 
         function nth(d) {
@@ -35,40 +37,43 @@
             }
         }
 
-        return `${day}${nth(day)} ${monthname} ${year}`;
+        return day + nth(day) + ' ' + monthname + ' ' + year;
     }
 
-    function buildTileImage(src) {
-        const thumbJpgSrc = src.replace(/\.(webp|png)$/i, '.jpg');
-        const thumbWebpSrc = thumbJpgSrc.replace(/\.jpg$/i, '.webp');
-        const fullJpgSrc = thumbJpgSrc.replace(/_thumb\.jpg$/i, '.jpg');
+    function getPhotoThumb(photo) {
+        if (!photo) return '';
+        if (typeof photo === 'string') return photo;
+        return photo.thumbUrl || photo.image || photo.fullUrl || photo.url || '';
+    }
 
-        return `
-            <picture>
-                <source srcset="${thumbWebpSrc}" type="image/webp">
-                <img
-                    class="pop"
-                    data-photo-url="${fullJpgSrc}"
-                    data-thumb-url="${thumbJpgSrc}"
-                    data-webp="${thumbWebpSrc}"
-                    data-jpg="${thumbJpgSrc}"
-                    src="${thumbJpgSrc}"
-                    alt="Event photo"
-                    loading="lazy"
-                    decoding="async"
-                    style="opacity:${opacity}; width:100%; height:100%; object-fit:cover; display:block;"
-                    onerror="this.onerror=null; this.style.opacity=1; this.src='testimage/black.jpg';"
-                >
-            </picture>
-        `;
+    function getPhotoFull(photo) {
+        if (!photo) return '';
+        if (typeof photo === 'string') {
+            return photo
+                .replace(/_thumb(?=\.[^.]+$)/i, '')
+                .replace(/\.(webp|png)$/i, '.jpg');
+        }
+        return photo.fullUrl || photo.image || photo.url || '';
+    }
+
+    function buildTileImage(photo) {
+        const thumbSrc = getPhotoThumb(photo);
+        const fullSrc = getPhotoFull(photo);
+        if (!thumbSrc || !fullSrc) return '';
+
+        return '<img'
+            + ' class="pop"'
+            + ' data-photo-url="' + fullSrc + '"'
+            + ' data-thumb-url="' + thumbSrc + '"'
+            + ' src="' + thumbSrc + '"'
+            + ' alt="Event photo"'
+            + ' style="width:100%;height:100%;object-fit:cover;display:block;opacity:' + opacity + ';">';
     }
 
     function buildEmptyTile(tileId) {
-	return `
-            <div class="empty-tile-label">
-                ${tileId}
-            </div>
-        `;
+        return '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ffffff;font-weight:700;font-size:20px;background:transparent;">'
+            + tileId
+            + '</div>';
     }
 
     function applyOpacityToVisibleTiles() {
@@ -76,8 +81,13 @@
     }
 
     function fetchSettings() {
-        return fetch('data/collageSettings.php')
-            .then(res => res.json())
+        return fetch('/data/collageSettings.php?id=' + encodeURIComponent(id))
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Settings request failed: ' + res.status);
+                }
+                return res.json();
+            })
             .then(settings => {
                 if (typeof settings.opacity !== 'undefined') {
                     const parsed = parseFloat(settings.opacity);
@@ -96,10 +106,8 @@
         const collage = document.getElementById('collage');
         const topEl = document.getElementById('top');
         const headerHeight = topEl ? topEl.offsetHeight : 0;
-
         const maxWidth = Math.max(100, window.innerWidth - 8);
         const maxHeight = Math.max(100, window.innerHeight - headerHeight - 8);
-
         const scale = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
 
         newImgWidth = Math.floor(imgWidth * scale);
@@ -107,33 +115,23 @@
 
         collage.style.position = 'relative';
         collage.style.overflow = 'hidden';
-        collage.style.width = `${newImgWidth}px`;
-        collage.style.height = `${newImgHeight}px`;
+        collage.style.width = newImgWidth + 'px';
+        collage.style.height = newImgHeight + 'px';
     }
 
     function getTileMetrics() {
         const width = newImgWidth;
         const height = newImgHeight;
-
         const tileWidth = (width - ((collageX - 1) * gap)) / collageX;
         const tileHeight = (height - ((collageY - 1) * gap)) / collageY;
-
-        return {
-            width,
-            height,
-            tileWidth,
-            tileHeight
-        };
+        return { width, height, tileWidth, tileHeight };
     }
 
     function updateTileLayout() {
         const $container = $('#collage');
         const $img = $container.find('#mainimg');
         const $tiles = $container.find('.tile');
-
-        if ($tiles.length === 0) {
-            return;
-        }
+        if ($tiles.length === 0) return;
 
         const metrics = getTileMetrics();
 
@@ -145,7 +143,6 @@
 
             const rawLeft = col * (metrics.tileWidth + gap);
             const rawTop = row * (metrics.tileHeight + gap);
-
             const left = Math.round(rawLeft);
             const top = Math.round(rawTop);
 
@@ -168,24 +165,24 @@
 
             $(this).css({
                 position: 'absolute',
-                left: `${left}px`,
-                top: `${top}px`,
-                width: `${width}px`,
-                height: `${height}px`,
+                left: left + 'px',
+                top: top + 'px',
+                width: width + 'px',
+                height: height + 'px',
                 margin: '0',
                 padding: '0',
                 overflow: 'hidden',
-                backgroundImage: `url(${$img.attr('src')})`,
+                backgroundImage: 'url(' + $img.attr('src') + ')',
                 backgroundRepeat: 'no-repeat',
-                backgroundSize: `${metrics.width}px ${metrics.height}px`,
-                backgroundPosition: `${-left}px ${-top}px`
+                backgroundSize: metrics.width + 'px ' + metrics.height + 'px',
+                backgroundPosition: (-left) + 'px ' + (-top) + 'px'
             });
         });
 
         applyOpacityToVisibleTiles();
     }
 
-    function rebuildTiles(photos) {
+    function rebuildTiles(photosByTile) {
         const $container = $('#collage');
         const $img = $container.find('#mainimg');
         const nTiles = collageX * collageY;
@@ -194,7 +191,7 @@
 
         const wraps = [];
         for (let i = 1; i <= nTiles; i++) {
-            wraps.push(`<div class="tile" id="${i}"></div>`);
+            wraps.push('<div class="tile" id="' + i + '"></div>');
         }
 
         const $wraps = $(wraps.join(''));
@@ -204,36 +201,35 @@
 
         $wraps.each(function () {
             const tileId = parseInt(this.id, 10);
-            if (photos[tileId]) {
-                $(this).removeClass('tile-empty').html(buildTileImage(photos[tileId]));
+            const photo = photosByTile[tileId];
+
+            if (photo) {
+                $(this).removeClass('tile-empty').html(buildTileImage(photo));
             } else {
                 $(this).addClass('tile-empty').html(buildEmptyTile(tileId));
             }
-	});
+        });
     }
 
-    function refreshExistingTiles(photos) {
+    function refreshExistingTiles(photosByTile) {
         $('#collage .tile').each(function () {
             const tileId = parseInt(this.id, 10);
             const $existing = $(this).find('img.pop');
-            const newSrc = photos[tileId];
+            const photo = photosByTile[tileId];
 
-            if (newSrc) {
-                const thumbJpgSrc = newSrc.replace(/\.(webp|png)$/i, '.jpg');
-                const thumbWebpSrc = thumbJpgSrc.replace(/\.jpg$/i, '.webp');
-                const fullJpgSrc = thumbJpgSrc.replace(/_thumb\.jpg$/i, '.jpg');
+            if (photo) {
+                const thumbSrc = getPhotoThumb(photo);
+                const fullSrc = getPhotoFull(photo);
                 const currentFullSrc = $existing.attr('data-photo-url');
 
-                if (!$existing.length || currentFullSrc !== fullJpgSrc) {
-                    $(this).removeClass('tile-empty').html(buildTileImage(newSrc));
+                if (!$existing.length || currentFullSrc !== fullSrc) {
+                    $(this).removeClass('tile-empty').html(buildTileImage(photo));
                 } else {
                     $(this).removeClass('tile-empty');
                     $existing
-                        .attr('data-photo-url', fullJpgSrc)
-                        .attr('data-thumb-url', thumbJpgSrc)
-                        .attr('data-webp', thumbWebpSrc)
-                        .attr('data-jpg', thumbJpgSrc)
-                        .attr('src', thumbJpgSrc)
+                        .attr('data-photo-url', fullSrc)
+                        .attr('data-thumb-url', thumbSrc)
+                        .attr('src', thumbSrc)
                         .css('opacity', opacity);
                 }
             } else {
@@ -253,7 +249,6 @@
             }
             if (!prop) return actuallySetStyles;
         },
-
         quickfitText: function (options) {
             options = options || {};
             return this.each(function () {
@@ -262,7 +257,6 @@
                 const maxHeight = options.maxHeight || parseInt($elem.attr('maxheight'), 10) || parseInt($elem.css('min-height'), 10) || 50;
                 const maxFontSize = options.minFontSize || parseInt($elem.attr('maxfont'), 10) || 300;
                 const minFontSize = options.maxFontSize || parseInt($elem.attr('minfont'), 10) || 7;
-
                 let fontSize = maxFontSize;
                 const style = $elem.getStyle();
 
@@ -270,11 +264,11 @@
                 elem.style.transition = 'none';
                 elem.style.display = 'inline';
                 elem.style.minHeight = '0';
-                elem.style.fontSize = `${fontSize}px`;
+                elem.style.fontSize = fontSize + 'px';
 
                 while (elem.getBoundingClientRect().height > maxHeight && fontSize > minFontSize) {
                     fontSize--;
-                    elem.style.fontSize = `${fontSize}px`;
+                    elem.style.fontSize = fontSize + 'px';
                 }
 
                 elem.style.transition = style.transition || '';
@@ -288,16 +282,15 @@
         const parts = photoUrl.split('/');
         const eventNum = parts.length >= 4 ? parts[2] : '';
         const fileName = parts.length >= 4 ? parts[3] : '';
-
         const jpgFileName = fileName.replace(/_thumb(?=\.[^.]+$)/i, '').replace(/\.[^.]+$/, '.jpg');
-        const fullPhotoUrl = `/photos/${eventNum}/${jpgFileName}`;
+        const fullPhotoUrl = '/photos/' + eventNum + '/' + jpgFileName;
 
         $('.imagepreview').attr('src', fullPhotoUrl);
 
         const wifiQrEl = document.getElementById('wifiqrcode');
         const downloadQrEl = document.getElementById('downloadqrcode');
 
-        if (wifiQrEl) {
+        if (wifiQrEl && window.QRCode) {
             wifiQrEl.innerHTML = '';
             new QRCode(wifiQrEl, {
                 text: 'WIFI:T:nopass;S:joedeejay-guest;;',
@@ -306,10 +299,10 @@
             });
         }
 
-        if (downloadQrEl) {
+        if (downloadQrEl && window.QRCode) {
             downloadQrEl.innerHTML = '';
             new QRCode(downloadQrEl, {
-                text: `http://local.joedeejay.com/download.php?num=${eventNum}&file=${jpgFileName}`,
+                text: 'http://local.joedeejay.com/download.php?num=' + eventNum + '&file=' + jpgFileName,
                 width: 220,
                 height: 220
             });
@@ -319,11 +312,10 @@
     }
 
     function fetchEvent() {
-        return fetch(`/data/boothnext.php?eventId=${id}`)
+        return fetch('/data/boothnext.php?eventId=' + encodeURIComponent(id))
             .then(response => response.json())
             .then(obj => {
-                const eventName = obj.title;
-                collageImg = '../photos/' + obj.collageImg;
+                collageImg = '../photos/' + obj.id + '/' + obj.collageImg;
                 collageX = parseInt(obj.collageX, 10);
                 collageY = parseInt(obj.collageY, 10);
                 imgWidth = parseInt(obj.imgWidth, 10);
@@ -331,7 +323,7 @@
                 eventId = obj.id;
                 window.eventId = obj.id;
 
-                document.getElementById('eventName').innerHTML = `${eventName} - ${formatDateParts(obj.date)}`;
+                document.getElementById('eventName').innerHTML = obj.title + ' - ' + formatDateParts(obj.date);
 
                 const mainImg = document.getElementById('mainimg');
                 mainImg.src = collageImg;
@@ -340,15 +332,14 @@
             });
     }
 
-    $.fn.splitInTiles = function (photos) {
+    $.fn.splitInTiles = function (photosByTile) {
         return this.each(function () {
             const hasTiles = $(this).find('.tile').length > 0;
-
             if (!hasTiles) {
-                rebuildTiles(photos);
+                rebuildTiles(photosByTile);
             } else {
                 updateTileLayout();
-                refreshExistingTiles(photos);
+                refreshExistingTiles(photosByTile);
             }
         });
     };
@@ -358,10 +349,20 @@
 
         Promise.all([
             fetchSettings(),
-            fetch(`/data/collagePhotos.php?id=${window.eventId}`).then(res => res.json())
+            fetch('/data/collagePhotos.php?id=' + encodeURIComponent(window.eventId)).then(res => res.json())
         ])
         .then(([, list]) => {
-            $('#collage').splitInTiles(list);
+            const mapped = {};
+
+            if (Array.isArray(list)) {
+                list.forEach(function (item) {
+                    if (item && item.photonum) {
+                        mapped[parseInt(item.photonum, 10)] = item;
+                    }
+                });
+            }
+
+            $('#collage').splitInTiles(mapped);
         })
         .catch(err => {
             console.error('Unable to refresh collage', err);
@@ -381,6 +382,18 @@
         const photoUrl = $(this).attr('data-photo-url') || $(this).attr('src');
         if (photoUrl) {
             openPhotoModal(photoUrl);
+        }
+    });
+
+    window.addEventListener('message', function (event) {
+        if (!event || !event.data || event.data.type !== 'collage-opacity-preview') {
+            return;
+        }
+
+        const nextOpacity = parseFloat(event.data.opacity);
+        if (!Number.isNaN(nextOpacity)) {
+            opacity = nextOpacity;
+            applyOpacityToVisibleTiles();
         }
     });
 

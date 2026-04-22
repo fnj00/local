@@ -4,11 +4,20 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<!--    <META NAME="robots" CONTENT="noindex,nofollow"> -->
     <title>JoeDeeJay : Events</title>
     <link rel="stylesheet" href="ng/bootstrap/dist/css/bootstrap.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="ng/angular-material/angular-material.css">
+    <link rel="stylesheet" href="css/cropper.min.css">
+    <style>
+      .cropper-wrap-box,
+      .cropper-canvas,
+      .cropper-drag-box,
+      .cropper-crop-box,
+      .cropper-view-box {
+        border-radius: 8px;
+      }
+    </style>
     <link rel="stylesheet" href="css/app.css">
     <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-touch-icon-60x60.png">
@@ -27,9 +36,6 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="msapplication-TileImage" content="icons/mstile-144x144.png">
     <meta name="theme-color" content="#ffffff">
-<!--
-    <script src="js/sweetalert.min.js"></script>
--->
     <script src="js/angular.js"></script>
     <script src="js/angular-material.js"></script>
     <script src="js/angular-route.js"></script>
@@ -52,21 +58,7 @@
 </head>
 
 <body>
-<script>
-  window.fbAsyncInit = function() {
-    FB.init({
-      appId            : '1519867624979211',
-      autoLogAppEvents : true,
-      xfbml            : true,
-      version          : 'v3.3'
-    });
-  };
-</script>
-<script async defer src="https://connect.facebook.net/en_US/sdk.js"></script>
-
-    <div class="container-fluid" ng-controller="FacebookCtrl as fbCtrl" layout="column" ng-cloak>
-<!--        <div ng-controller="SearchCtrl">{{eventId}}</div>
--->
+    <div class="container-fluid" layout="column" ng-cloak>
         <div ng-view></div>
     </div>
 <div class="footer center" ng-controller="genericCtrl">

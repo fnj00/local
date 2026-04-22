@@ -1,106 +1,93 @@
 <md-content>
-<md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
-      <div class="md-toolbar-tools">
-	  <div style='padding: 0 4px 0 0;'><a href="#/voting/{{eventId}}"> <img src='img/logo-xs.png'></a></div>
-        <span class="title">{{eventTitle}}</span>
-        <span flex></span>
-	<md-menu>
-	<md-button class="md-icon-button" aria-label="Settings" ng-disabled="false" ng-click="openMenu($mdOpenMenu, $event)">
+  <md-toolbar class="toolbar-top" theme="forest" md-colors="{color: 'red-A100'}">
+    <div class="md-toolbar-tools">
+      <div style="padding: 0 4px 0 0;">
+        <a href="#/voting/{{eventId}}">
+          <img src="img/logo-xs.png" alt="Logo">
+        </a>
+      </div>
+
+      <span class="title">{{eventTitle || 'Song Request'}}</span>
+      <span flex></span>
+
+      <md-menu>
+        <md-button class="md-icon-button" aria-label="Menu" ng-click="openMenu($mdOpenMenu, $event)">
           <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
         </md-button>
-		<md-menu-content width="4">
-	<md-menu-item>
-            <md-button href = '#/voting/{{eventId}}'>Back to Event</md-button>
-        </md-menu-item>
-        <md-menu-item>
-            <md-button href = '#/event/'>Change Event</md-button>
-        </md-menu-item>
-      </md-menu-content>
-    </md-menu>
-      </div>
-    </md-toolbar>
-	</md-content>
-<div layout-gt-sm="row">
-    <div class="col-md-12">
-        <h3>Suggest a song:</h3>
+
+        <md-menu-content width="4">
+          <md-menu-item>
+            <md-button href="#/voting/{{eventId}}">Back to Event</md-button>
+          </md-menu-item>
+          <md-menu-item>
+            <md-button href="#/event/">Change Event</md-button>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
     </div>
-</div>
-<div ng-controller="SongSearchCtrl as ctrl" layout="column" ng-cloak>
-    <md-content class="md-padding">
-        <form ng-submit="$event.preventDefault()" name="searchForm">
-            <div layout-gt-sm="row">
-                <div class="col-md-12">
-                    <div class='input-container'>
-                        <div class="icon-ph"><i class="glyphicon glyphicon-music"></i></div>
-                        <md-autocomplete required 
-                                ng-disabled="ctrl.isDisabled" 
-                                md-no-cache="ctrl.noCache" 
-                                md-selected-item="ctrl.selectedSongItem" 
-                                md-search-text-change="" 
-                                md-search-text="ctrl.searchSongText" 
-                                md-selected-item-change="ctrl.selectedSongItemChange(item)" 
-                                md-items="item in ctrl.searchSong(ctrl.searchSongText,ctrl.searchArtistText)" 
-                                md-item-text="item.name" 
-                                placeholder="Song Title" 
-                                md-input-minlength=4 
-                                md-min-length="4">
-                                <md-item-template>
-                                    <img ng-src={{item.image[0]["#text"]}}>
-                                    <span 
-                                        md-highlight-text="ctrl.searchSongText" 
-                                        md-highlight-flags="^i">{{item.name}} by {{item.artist}} 
-                                    </span>  
-                            </md-item-template>
-                            <div ng-messages="searchForm.autocompleteField.$error" ng-if="searchForm.autocompleteField.$touched">
-                                <div ng-message="required">You <b>must</b> have a favorite state.</div>
-                                <div ng-message="minlength">Your entry is not long enough.</div>
-                                <div ng-message="maxlength">Your entry is too long.</div>
-                            </div>
-                            <md-not-found>
-                                No matches for "{{ctrl.searchSongText}}" were found.
-                            </md-not-found>
-                        </md-autocomplete>
-                    </div>
-                    <div ng-show="ctrl.isSongEntered" class="inline error-text">* song title required</div>
-                </div>
+  </md-toolbar>
+</md-content>
+
+<div layout="column" layout-padding style="max-width: 900px; margin: 0 auto;">
+  <md-card>
+    <md-card-content>
+      <div layout="column" layout-gt-sm="row" layout-gap="24">
+        <div flex="100" flex-gt-sm="55">
+          <h2 style="margin-top: 0;">Request a Song</h2>
+          <p class="md-body-1" ng-if="eventTitle">
+            Send a request for <strong>{{eventTitle}}</strong>.
+          </p>
+
+          <div class="md-caption" ng-if="eventDetails && eventDetails.date" style="margin-bottom: 18px;">
+            Event date: {{eventDetails.date}}
+          </div>
+
+          <form ng-submit="submitSong()" novalidate>
+            <md-input-container class="md-block">
+              <label>Song title and/or artist</label>
+              <input ng-model="formData.song" maxlength="200" autocomplete="off">
+            </md-input-container>
+
+            <md-input-container class="md-block">
+              <label>Your name (optional)</label>
+              <input ng-model="formData.requesterName" maxlength="100" autocomplete="name">
+            </md-input-container>
+
+            <div ng-if="submitError" style="margin: 12px 0; color: #b00020;">
+              {{submitError}}
             </div>
-            <div layout-gt-sm="row">
-                <div class="col-md-12">
-                    <div class='input-container'>
-                        <div class="icon-ph"><i class="glyphicon glyphicon-user"></i></div>
-                        <md-autocomplete 
-                        ng-disabled="ctrl.isDisabled" 
-                        md-no-cache="ctrl.noCache" 
-                        md-selected-item="ctrl.selectedArtistItem" 
-                        md-search-text-change="" 
-                        md-search-text="ctrl.searchArtistText" 
-                        md-selected-item-change="ctrl.selectedArtistItemChange(item)" 
-                        md-items="item in ctrl.searchArtist(ctrl.searchArtistText)" 
-                        md-item-text="item.name" 
-                        md-min-length="5" 
-                        placeholder="Artist Name">
-                            <md-item-template>
-                                <img ng-src= {{item.image[0]["#text"]}}>
-                                <span 
-                                    md-highlight-text="ctrl.searchArtistText" 
-                                    md-highlight-flags="^i">{{item.name}}
-                                </span>
-                            </md-item-template>
-                            <md-not-found>
-                                No matches for "{{ctrl.searchArtistText}}" were found.
-                            </md-not-found>
-                        </md-autocomplete>
-                        <div ng-show="ctrl.isArtistEntered" class="inline error-text">* artist required</div>
-                    </div>
-                </div>
+
+            <div ng-if="submitSuccess" style="margin: 12px 0; color: #2e7d32;">
+              {{responseMessage}}
             </div>
-            <div layout-gt-sm="row">
-                <div class="col-md-12">
-					<button type="button" ng-click="ctrl.cancel(eventId)" class="btn btn-primary navbar-btn">Cancel</button>
-                    <button type="button" ng-click="ctrl.addSong(eventId)" class="btn btn-primary navbar-btn">Add Song</button>
-					
-                </div>
+
+            <div layout="row" layout-wrap layout-gap="12">
+              <md-button class="md-raised md-primary" type="submit" ng-disabled="isSubmitting">
+                {{isSubmitting ? 'Sending…' : 'Send Request'}}
+              </md-button>
+
+              <md-button class="md-raised" href="#/voting/{{eventId}}">
+                Back to Event
+              </md-button>
             </div>
-        </form>
-    </md-content>
+          </form>
+        </div>
+
+        <div flex="100" flex-gt-sm="45" ng-if="eventPhoto">
+          <img ng-src="{{eventPhoto}}" alt="{{eventTitle}}" style="width: 100%; border-radius: 8px;">
+        </div>
+      </div>
+    </md-card-content>
+  </md-card>
+
+  <md-card>
+    <md-card-content>
+      <h3 style="margin-top: 0;">Tips</h3>
+      <ul style="margin-top: 8px;">
+        <li>Enter the song title, artist, or both.</li>
+        <li>Use your name if you want the DJ to know who requested it.</li>
+        <li>If the request is already in the queue, the site may reject duplicates.</li>
+      </ul>
+    </md-card-content>
+  </md-card>
 </div>
